@@ -1,0 +1,7 @@
+name: openshift_jenkins_azure
+runtime: python
+description: Run Azure Container App, deploy your Docker Image in Docker Hub
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: azure-python
