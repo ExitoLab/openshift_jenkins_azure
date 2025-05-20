@@ -80,7 +80,10 @@ nsg = azure_native.network.NetworkSecurityGroup(nsg_name,
         )
     ])
 
+#dckr_pat_RWzLCJZThsG7YzEQxbDB2CZ_hVU
 
+
+#1fa57e4cbe0a4bfd992258296e5d0ead
 # Subnet with NSG associated
 subnet_name = f"subnet-{env}"
 subnet = azure_native.network.Subnet(subnet_name,

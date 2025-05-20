@@ -1,0 +1,51 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Selenium Test Suite" parallel="tests" thread-count="2">
+    <!-- Common parameters that apply to all tests -->
+    <parameter name="screenshot-dir" value="/app/test-output/screenshots"/>
+    
+    <!-- Run all regression tests -->
+    <test name="Regression Tests">
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.example.tests.GoogleSearchTest"/>
+            <class name="com.example.tests.NavigationTest"/>
+        </classes>
+    </test>
+    
+    <!-- Run tests with specific browser configurations -->
+    <test name="Chrome Tests">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="com.example.tests.MySeleniumTest"/>
+        </classes>
+    </test>
+    
+    <test name="Edge Tests">
+        <parameter name="browser" value="edge"/>
+        <classes>
+            <class name="com.example.tests.MySeleniumTest"/>
+        </classes>
+    </test>
+    
+    <!-- Run small quick tests -->
+    <test name="Small Tests">
+        <groups>
+            <run>
+                <include name="small"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.example.tests.GoogleSearchTest"/>
+        </classes>
+    </test>
+    
+    <!-- Listeners for reporting -->
+    <listeners>
+        <listener class-name="org.testng.reporters.XMLReporter"/>
+        <listener class-name="org.testng.reporters.EmailableReporter"/>
+    </listeners>
+</suite>
