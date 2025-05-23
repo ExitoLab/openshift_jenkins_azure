@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testng-agent
+  namespace: jenkins-agents
+labels:
+  app: testng-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testng-agent
+  template:
+    metadata:
+      labels:
+        app: testng-agent
+    spec:
+      securityContext:
+        runAsUser: 10000
+        fsGroup: 10000
+      containers:
+      - name: maven
+        image: talk2toks/testng-automation:v1.1.2
+        command: ["sleep"]
+        args: ["infinity"]
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        volumeMounts:
+        - name: maven-repo
+          mountPath: /tmp/.m2/repository
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+      - name: maven-repo
+        emptyDir: {}

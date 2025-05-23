@@ -176,6 +176,95 @@ runcmd:
   # Verify installation
   - az --version
 
+
+  # Set subscription (replace <subscription-id>)
+  az account set --subscription <subscription-id>
+
+  az quota update \
+  --resource-name StandardDSv3Family \
+  --scope /subscriptions/subscription_id/providers/Microsoft.Compute/locations/centralus \
+  --limit '{"value": 36}'
+
+  # Request quota increase
+  az quota update \
+    --resource-name StandardDasv4Family \
+    --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/centralus \
+    --limit '{"value": 36}'
+
+ az network vnet create \
+  --resource-group python-app \
+  --name aro-vnet \
+  --address-prefixes 10.0.0.0/22 \
+  --location centralus
+
+ az network vnet subnet create \
+  --resource-group python-app \
+  --vnet-name aro-vnet \
+  --name master-subnet \
+  --address-prefixes 10.0.0.0/23 \
+  --service-endpoints Microsoft.ContainerRegistry \
+  --disable-private-link-service-network-policies true
+
+ az network vnet subnet create \
+  --resource-group python-app \
+  --vnet-name aro-vnet \
+  --name worker-subnet \
+  --address-prefixes 10.0.2.0/23 \
+  --service-endpoints Microsoft.ContainerRegistry \
+  --disable-private-link-service-network-policies true
+
+ az role assignment create \
+  --assignee 19157807-b148-4e12-a7b5-ba2abeb1a9ed \
+  --role Contributor \
+  --scope /subscriptions/<subscription_id>/resourceGroups/python-app 
+
+
+  # Verify resources
+az group show --name python-app  --output table
+az network vnet show --resource-group python-app  --name aro-vnet --output table
+az network vnet subnet list --resource-group python-app --vnet-name aro-vnet --output table
+az role assignment list --assignee  --scope /subscriptions/<subscription-id>/resourceGroups/openshift --output table
+
+
+az aro create \
+  --resource-group python-app \
+  --name openshift \
+  --vnet aro-vnet \
+  --master-subnet master-subnet \
+  --worker-subnet worker-subnet \
+  --master-vm-size Standard_D8s_v3 \
+  --worker-vm-size Standard_D4as_v4 \
+  --worker-count 3 \
+  --location centralus \
+  --pull-secret /tmp/pull-secrets.txt
+
+
+  # GET URL 
+  az aro show --resource-group  python-app --name openshift --query consoleProfile.url -o tsv
+
+  az aro list-credentials \
+  --resource-group python-app \
+  --name openshift
+
+  
+  az aro show --resource-group python-app --name openshift --query consoleProfile.url -o tsv
+
+  az aro list-credentials --resource-group python-app --name openshift
+
+  az aro show --resource-group python-app --name openshift --query apiserverProfile.url -o tsv
+
+
+  #https://grok.com/chat/13940b48-7a6d-4c12-afe0-7518ecc45b74
+
+
+  oc create secret docker-registry regcred \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=username \
+  --docker-password=token \
+  --docker-email=igeadetokunbo@gmail.com \
+  --namespace=jenkins-agents
+
+
   # Optional: reboot to apply kernel updates
   # - reboot
 """
@@ -260,3 +349,8 @@ if len(dns_label) > 63:
 pulumi.export("jenkins_url", public_ip.ip_address.apply(lambda ip: f"http://{ip}:8080"))
 # NOTE: To SSH into your VM, ensure port 22 is allowed and the public IP is reachable.
 # To access Jenkins, navigate to http://<public_ip>:8080
+
+
+# extent report - Save reports, PVC or Jenkins workspace 
+# HPA config 
+# Node Auto scaling 

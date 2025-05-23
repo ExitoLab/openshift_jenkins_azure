@@ -3,8 +3,23 @@
     <!-- Common parameters that apply to all tests -->
     <parameter name="screenshot-dir" value="/app/test-output/screenshots"/>
     
-    <!-- Run all regression tests -->
-    <test name="Regression Tests">
+    <!-- Run regression tests with Chrome -->
+    <test name="Regression Tests Chrome">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.example.tests.GoogleSearchTest"/>
+            <class name="com.example.tests.NavigationTest"/>
+        </classes>
+    </test>
+    
+    <!-- Run regression tests with Edge -->
+    <test name="Regression Tests Edge">
+        <parameter name="browser" value="edge"/>
         <groups>
             <run>
                 <include name="regression"/>
@@ -31,8 +46,22 @@
         </classes>
     </test>
     
-    <!-- Run small quick tests -->
-    <test name="Small Tests">
+    <!-- Run small quick tests with Chrome -->
+    <test name="Small Tests Chrome">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="small"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.example.tests.GoogleSearchTest"/>
+        </classes>
+    </test>
+    
+    <!-- Run small quick tests with Edge -->
+    <test name="Small Tests Edge">
+        <parameter name="browser" value="edge"/>
         <groups>
             <run>
                 <include name="small"/>

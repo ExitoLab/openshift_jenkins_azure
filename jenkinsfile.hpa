@@ -1,0 +1,108 @@
+pipeline {
+  agent any
+  environment {
+    OC_CREDENTIALS = credentials('openshift-token') // Jenkins credential ID for OpenShift token
+    OC_SERVER = 'https://api.your-openshift-cluster:6443' // Replace with your OpenShift API URL
+    OC_PROJECT = 'default'
+  }
+  stages {
+    stage('Check OpenShift CLI') {
+      steps {
+        script {
+          sh '''
+            if ! command -v oc &> /dev/null; then
+              echo "oc CLI not found. Installing..."
+              curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar -xz -C /usr/local/bin
+            fi
+            oc version
+          '''
+        }
+      }
+    }
+    stage('Login to OpenShift') {
+      steps {
+        script {
+          sh """
+            oc login ${OC_SERVER} --token=${OC_CREDENTIALS} --insecure-skip-tls-verify
+            oc project ${OC_PROJECT}
+          """
+        }
+      }
+    }
+    stage('Apply Deployment') {
+      steps {
+        script {
+          writeFile file: 'nginx-deployment.yaml', text: '''
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1024Mi"
+          '''
+          sh 'oc apply -f nginx-deployment.yaml'
+        }
+      }
+    }
+    stage('Apply HPA') {
+      steps {
+        script {
+          writeFile file: 'hpa-nginx.yaml', text: '''
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+          '''
+          sh 'oc apply -f hpa-nginx.yaml'
+        }
+      }
+    }
+    stage('Verify Deployment and HPA') {
+      steps {
+        script {
+          sh 'oc get deployment nginx-deployment'
+          sh 'oc get hpa nginx-hpa'
+          sh 'oc describe hpa nginx-hpa'
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        sh 'oc logout'
+      }
+    }
+    failure {
+      echo 'Pipeline failed. Check OpenShift API access or EC2 network settings.'
+    }
+  }
+}

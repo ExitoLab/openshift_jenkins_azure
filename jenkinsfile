@@ -1,0 +1,72 @@
+pipeline {
+    agent none
+    stages {
+        stage('Run Tests') {
+            matrix {
+                axes {
+                    axis {
+                        name 'TEST_GROUP'
+                        values 'small', 'regression'
+                    }
+                }
+                agent {
+                    kubernetes {
+                        cloud 'openshift'  // your cloud name
+                        label "testng-agent-${TEST_GROUP}"
+                        yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: testng-agent
+spec:
+  securityContext:
+    runAsUser: 10000
+    fsGroup: 10000
+  containers:
+  - name: maven
+    image: talk2toks/testng-automation:v1.1.2
+    command:
+    - sleep
+    args:
+    - infinity
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    volumeMounts:
+    - name: maven-repo
+      mountPath: /tmp/.m2/repository
+  imagePullSecrets:
+  - name: regcred
+  volumes:
+  - name: maven-repo
+    emptyDir: {}
+"""
+                    }
+                }
+                stages {
+                    stage('Checkout') {
+                        steps {
+                            container('maven') {
+                                checkout([$class: 'GitSCM', 
+                                        branches: [[name: '*/main']], 
+                                        userRemoteConfigs: [[url: 'https://github.com/ExitoLab/openshift_jenkins_azure.git']]])
+                            }
+                        }
+                    }
+                    stage('Build') {
+                        steps {
+                            container('maven') {
+                                sh 'mvn -f testng-automation/pom.xml clean install'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

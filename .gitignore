@@ -17,8 +17,13 @@ __pycache__/
 *.egg-info/
 venv/
 myenv/
+env/
 .venv/
 .Python
+
+testng-automation/.DS_Store
+testng-automation/dependencies/
+.DS_Store
 
 */*/path
 
