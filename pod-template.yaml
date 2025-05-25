@@ -38,3 +38,21 @@ spec:
       volumes:
       - name: maven-repo
         emptyDir: {}
+
+
+
+pod - application  ///test-nginx:8080;
+svc - pod /health 
+hpa 
+
+pod 
+
+test - pod 
+svc - 
+
+
+endpoint - /test 
+mvn command 
+svc - 
+
+pod 

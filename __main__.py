@@ -236,7 +236,7 @@ az aro create \
   --worker-vm-size Standard_D4as_v4 \
   --worker-count 3 \
   --location centralus \
-  --pull-secret /tmp/pull-secrets.txt
+  --pull-secret /opt/nginx/pull-secrets.txt
 
 
   # GET URL 
@@ -246,7 +246,6 @@ az aro create \
   --resource-group python-app \
   --name openshift
 
-  
   az aro show --resource-group python-app --name openshift --query consoleProfile.url -o tsv
 
   az aro list-credentials --resource-group python-app --name openshift
@@ -263,6 +262,33 @@ az aro create \
   --docker-password=token \
   --docker-email=igeadetokunbo@gmail.com \
   --namespace=jenkins-agents
+
+  
+  # Login first then to grant access to openshift
+
+  # Create Jenkins Project on oc
+  oc new-project jenkins-agents
+
+
+  # Create a service account "jenkins-agent"
+  oc create sa jenkins-agent -n jenkins-agents
+
+
+  # Grant permission
+  oc policy add-role-to-user edit system:serviceaccount:jenkins-agents:jenkins-agent -n jenkins-agents
+
+  
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-results-pvc
+  namespace: jenkins-agents
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 30Gi
 
 
   # Optional: reboot to apply kernel updates

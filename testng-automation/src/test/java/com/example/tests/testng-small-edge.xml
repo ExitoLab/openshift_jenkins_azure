@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Small - Edge" parallel="false">
+    <parameter name="browser" value="edge"/>
+    <parameter name="screenshot-dir" value="/app/test-output/screenshots"/>
+    <test name="Edge Small Tests">
+        <groups>
+            <run>
+                <include name="small"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.example.tests.GoogleSearchTest"/>
+        </classes>
+    </test>
+</suite>

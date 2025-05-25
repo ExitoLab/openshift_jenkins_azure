@@ -64,24 +64,6 @@ log "Checking browser and driver versions..."
 export CLASSPATH="target/classes:/app/selenium/*:/app/selenium/libs/*"
 log "CLASSPATH set to $CLASSPATH"
 
-# Set environment variable for testng.xml (make sure the path exists)
-export TESTNG_FILE=/app/testng.xml
-if [ ! -f "$TESTNG_FILE" ]; then
-  log "WARNING: $TESTNG_FILE does not exist."
-fi
-
-# Run Maven tests based on environment variables
-if [[ -n "${TEST_GROUP-}" ]]; then
-  log "Running tests for group: $TEST_GROUP"
-  mvn test -Dsurefire.suiteXmlFiles="$TESTNG_FILE" -Dgroups="$TEST_GROUP"
-elif [[ -n "${BROWSER-}" ]]; then
-  log "Running tests with browser: $BROWSER"
-  mvn test -Dsurefire.suiteXmlFiles="$TESTNG_FILE" -Dbrowser="$BROWSER"
-else
-  log "Running all tests with testng.xml"
-  mvn test -Dsurefire.suiteXmlFiles="$TESTNG_FILE"
-fi
-
 # Clean up Xvfb
 log "Cleaning up Xvfb..."
 kill $XVFB_PID || log "Xvfb process already terminated"

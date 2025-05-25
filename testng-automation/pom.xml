@@ -43,6 +43,9 @@
                 <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
+                        <suiteXmlFile>testng-regression-chrome.xml</suiteXmlFile>
+                        <suiteXmlFile>testng-regression.xml</suiteXmlFile>
+                        <suiteXmlFile>testng-small-edge.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
