@@ -277,6 +277,8 @@ az aro create \
   # Grant permission
   oc policy add-role-to-user edit system:serviceaccount:jenkins-agents:jenkins-agent -n jenkins-agents
 
+  oc adm policy add-scc-to-user anyuid -z jenkins-agent -n jenkins-agents
+
   
 apiVersion: v1
 kind: PersistentVolumeClaim
