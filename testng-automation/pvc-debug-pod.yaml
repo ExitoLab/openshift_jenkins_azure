@@ -1,3 +1,4 @@
+# pvc-debug-pod.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -6,15 +7,13 @@ metadata:
 spec:
   containers:
   - name: debug
-    image: alpine
+    image: busybox
     command: ["sh", "-c", "sleep 3600"]
     volumeMounts:
     - mountPath: /mnt/results
       name: results
-  restartPolicy: Never
-  imagePullSecrets:
-    - name: regcred
   volumes:
   - name: results
     persistentVolumeClaim:
       claimName: test-results-pvc
+  restartPolicy: Never
