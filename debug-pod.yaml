@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-debug
+  namespace: jenkins-agents
+spec:
+  containers:
+  - name: debug
+    image: alpine
+    command: ["sh", "-c", "sleep 3600"]
+    volumeMounts:
+    - mountPath: /mnt/results
+      name: results
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: regcred
+  volumes:
+  - name: results
+    persistentVolumeClaim:
+      claimName: test-results-pvc
